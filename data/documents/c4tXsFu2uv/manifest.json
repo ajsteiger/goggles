@@ -1,0 +1,21 @@
+{
+  "id": "c4tXsFu2uv",
+  "name": "test1",
+  "baseTemplateId": "exam",
+  "hasTemplateOverride": false,
+  "paramBindings": {
+    "title": {
+      "kind": "fork",
+      "forkId": "bcrMJcM27x"
+    },
+    "q1": {
+      "kind": "text",
+      "value": "123"
+    },
+    "q2": {
+      "kind": "text",
+      "value": ""
+    }
+  },
+  "notes": ""
+}

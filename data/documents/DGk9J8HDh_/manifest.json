@@ -1,0 +1,21 @@
+{
+  "id": "DGk9J8HDh_",
+  "name": "Midterm",
+  "baseTemplateId": "exam",
+  "hasTemplateOverride": false,
+  "paramBindings": {
+    "title": {
+      "kind": "fork",
+      "forkId": "vvaQe9k4oy"
+    },
+    "q1": {
+      "kind": "fork",
+      "forkId": "7r7saT1qGV"
+    },
+    "q2": {
+      "kind": "text",
+      "value": "$2+2=?$"
+    }
+  },
+  "notes": ""
+}

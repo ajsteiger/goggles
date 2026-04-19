@@ -1,0 +1,13 @@
+{
+  "id": "fVS6DoCExT",
+  "name": "Midterm",
+  "baseTemplateId": "exam",
+  "hasTemplateOverride": false,
+  "paramBindings": {
+    "title": {
+      "kind": "fork",
+      "forkId": "Jr5Oi03bjP"
+    }
+  },
+  "notes": ""
+}

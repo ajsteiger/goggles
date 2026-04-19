@@ -1,0 +1,267 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1776555755421,
+  "projectRoot": "/Users/alexsteiger/src/tries/2026-04-18-goggles",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "npm-run-all --parallel dev:server dev:client",
+      "dev:server": "npm run dev -w server",
+      "dev:client": "npm run dev -w client",
+      "build": "npm run build -w shared && npm run build -w server && npm run build -w client"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": true,
+    "workspaces": [
+      "server",
+      "client",
+      "shared"
+    ],
+    "mainDirectories": [],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "data": {
+      "path": "data",
+      "purpose": "Data files",
+      "fileCount": 0,
+      "lastAccessed": 1776555755377,
+      "keyFiles": []
+    },
+    "server": {
+      "path": "server",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1776555755379,
+      "keyFiles": [
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    "shared": {
+      "path": "shared",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1776555755405,
+      "keyFiles": [
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    "server/src": {
+      "path": "server/src",
+      "purpose": "Source code",
+      "fileCount": 3,
+      "lastAccessed": 1776555755411,
+      "keyFiles": [
+        "index.ts",
+        "paths.ts",
+        "storage.ts"
+      ]
+    },
+    "shared/dist": {
+      "path": "shared/dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 2,
+      "lastAccessed": 1776555755416,
+      "keyFiles": [
+        "index.d.ts",
+        "index.js"
+      ]
+    },
+    "shared/src": {
+      "path": "shared/src",
+      "purpose": "Source code",
+      "fileCount": 1,
+      "lastAccessed": 1776555755417,
+      "keyFiles": [
+        "index.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "server/src/storage.ts",
+      "accessCount": 14,
+      "lastAccessed": 1776610161880,
+      "type": "file"
+    },
+    {
+      "path": "client/src/DocumentEditor.tsx",
+      "accessCount": 14,
+      "lastAccessed": 1776628945632,
+      "type": "file"
+    },
+    {
+      "path": "shared/src/index.ts",
+      "accessCount": 10,
+      "lastAccessed": 1776610143688,
+      "type": "file"
+    },
+    {
+      "path": "client/src/api.ts",
+      "accessCount": 7,
+      "lastAccessed": 1776610174823,
+      "type": "file"
+    },
+    {
+      "path": "client/src/styles.css",
+      "accessCount": 7,
+      "lastAccessed": 1776628110035,
+      "type": "file"
+    },
+    {
+      "path": "client/src/Library.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776610203060,
+      "type": "file"
+    },
+    {
+      "path": "server/src/routes/templates.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776610170208,
+      "type": "file"
+    },
+    {
+      "path": "server/src/routes/snippets.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776610171964,
+      "type": "file"
+    },
+    {
+      "path": "server/src/index.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776627418690,
+      "type": "file"
+    },
+    {
+      "path": "client/src/App.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1776628049457,
+      "type": "file"
+    },
+    {
+      "path": "data/templates/exam.tex",
+      "accessCount": 3,
+      "lastAccessed": 1776609161757,
+      "type": "file"
+    },
+    {
+      "path": "server/src/routes/documents.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776563112062,
+      "type": "file"
+    },
+    {
+      "path": "data/snippets/algebra-quadratic.tex",
+      "accessCount": 2,
+      "lastAccessed": 1776609181122,
+      "type": "file"
+    },
+    {
+      "path": "data/snippets/calc-derivative.tex",
+      "accessCount": 2,
+      "lastAccessed": 1776609181997,
+      "type": "file"
+    },
+    {
+      "path": "client/src/LaTeXEditor.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776628074994,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 1,
+      "lastAccessed": 1776563093753,
+      "type": "file"
+    },
+    {
+      "path": "server/package.json",
+      "accessCount": 1,
+      "lastAccessed": 1776563099817,
+      "type": "file"
+    },
+    {
+      "path": "server/src/paths.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776563107111,
+      "type": "file"
+    },
+    {
+      "path": "client/package.json",
+      "accessCount": 1,
+      "lastAccessed": 1776571069145,
+      "type": "file"
+    },
+    {
+      "path": "client/tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1776571069980,
+      "type": "file"
+    },
+    {
+      "path": "client/vite.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776571070353,
+      "type": "file"
+    },
+    {
+      "path": "client/index.html",
+      "accessCount": 1,
+      "lastAccessed": 1776571070723,
+      "type": "file"
+    },
+    {
+      "path": "client/src/main.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776571071086,
+      "type": "file"
+    },
+    {
+      "path": "client/src/compiler.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776627996845,
+      "type": "file"
+    },
+    {
+      "path": "client/src/PreviewPanel.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776628005289,
+      "type": "file"
+    },
+    {
+      "path": "client/src/LeftPanel.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776628043363,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

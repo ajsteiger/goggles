@@ -1,0 +1,7 @@
+{
+  "tool_name": "WebFetch",
+  "tool_input_preview": "{\"url\":\"https://raw.githubusercontent.com/SwiftLaTeX/SwiftLaTeX/master/pdftex.wasm/PdfTeXEngine.ts\",\"prompt\":\"Extract the full class API: constructor, loadEngine, writeMemFSFile, setEngineMainFile, co...",
+  "error": "Request failed with status code 404",
+  "timestamp": "2026-04-19T20:24:29.176Z",
+  "retry_count": 1
+}
