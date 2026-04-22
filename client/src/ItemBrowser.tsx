@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { extractParams } from "@goggles/shared";
 import { api, type Template, type Snippet } from "./api.js";
-import { LaTeXEditor } from "./LaTeXEditor.js";
+import { LazyLaTeXEditor } from "./LazyLaTeXEditor.js";
 import { TagEditor } from "./TagEditor.js";
 
 type ItemKind = "templates" | "snippets";
@@ -123,7 +123,7 @@ function ItemEditor({
         </label>
         <label className="field">
           <span>author notes</span>
-          <LaTeXEditor
+          <LazyLaTeXEditor
             value={notes}
             onChange={(v) => { setNotes(v); mark(); }}
             minHeight="80px"
@@ -133,7 +133,7 @@ function ItemEditor({
 
       <label className="field">
         <span>content</span>
-        <LaTeXEditor
+        <LazyLaTeXEditor
           value={content}
           onChange={(v) => { setContent(v); mark(); }}
           minHeight="300px"

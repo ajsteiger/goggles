@@ -1,9 +1,16 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { assembleBuild } from "@goggles/shared";
-import { compileTex, type CompileStep } from "./compiler.js";
 import { api } from "./api.js";
+import type { CompileStep } from "./compiler.js";
 
 const PdfPreview = lazy(() => import("./PdfPreview.js").then((module) => ({ default: module.PdfPreview })));
+const loadCompiler = (() => {
+  let promise: Promise<typeof import("./compiler.js")> | null = null;
+  return () => {
+    if (!promise) promise = import("./compiler.js");
+    return promise;
+  };
+})();
 
 export function PreviewPanel({ docId }: { docId: string | null }) {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -40,6 +47,7 @@ export function PreviewPanel({ docId }: { docId: string | null }) {
     setBuildStep({ index: 1, total: 5, label: "loading document" });
     const doc = await api.getDocument(docId);
     const tex = assembleBuild(doc);
+    const { compileTex } = await loadCompiler();
     const result = await compileTex(tex, (step) => setBuildStep({ index: step.index + 1, total: 5, label: step.label }));
     if (!result.ok) {
       setBuilding(false);

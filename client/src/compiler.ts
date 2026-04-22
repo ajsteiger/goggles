@@ -17,21 +17,57 @@ declare class PdfTeXEngine {
   isReady(): boolean;
 }
 
+declare global {
+  interface Window {
+    PdfTeXEngine?: new () => PdfTeXEngine;
+  }
+}
+
 let engine: PdfTeXEngine | null = null;
 let loadPromise: Promise<PdfTeXEngine> | null = null;
+let scriptPromise: Promise<void> | null = null;
+
+async function ensureCompileScript() {
+  if (window.PdfTeXEngine) return;
+  if (!scriptPromise) {
+    scriptPromise = new Promise((resolve, reject) => {
+      const existing = document.querySelector<HTMLScriptElement>('script[data-swiftlatex-engine="true"]');
+      if (existing) {
+        existing.addEventListener("load", () => resolve(), { once: true });
+        existing.addEventListener("error", () => reject(new Error("failed to load compile engine")), { once: true });
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "/swiftlatex/PdfTeXEngine.js";
+      script.async = true;
+      script.dataset.swiftlatexEngine = "true";
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("failed to load compile engine"));
+      document.body.appendChild(script);
+    });
+  }
+  await scriptPromise;
+  if (!window.PdfTeXEngine) throw new Error("compile engine unavailable");
+}
 
 export async function warmCompileEngine(onStep?: (step: CompileStep) => void): Promise<PdfTeXEngine> {
   if (engine?.isReady()) return engine;
   if (!loadPromise) {
     loadPromise = (async () => {
       onStep?.({ index: 1, total: 4, label: "loading engine" });
-      const eng: PdfTeXEngine = new (window as any).PdfTeXEngine();
+      await ensureCompileScript();
+      const Eng = window.PdfTeXEngine;
+      if (!Eng) throw new Error("compile engine unavailable");
+      const eng = new Eng();
       await eng.loadEngine();
       onStep?.({ index: 2, total: 4, label: "loading tex assets" });
       eng.setTexliveEndpoint(`${window.location.origin}/api/swiftlatex`);
       engine = eng;
       return eng;
-    })();
+    })().catch((error) => {
+      loadPromise = null;
+      throw error;
+    });
   }
   return loadPromise;
 }

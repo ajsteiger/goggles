@@ -14,7 +14,7 @@ function fuzzyMatchSnippet(query: string, snippet: Snippet): boolean {
     .filter(Boolean)
     .every((token) => haystack.includes(token));
 }
-import { LaTeXEditor } from "./LaTeXEditor.js";
+import { LazyLaTeXEditor } from "./LazyLaTeXEditor.js";
 import { TagEditor } from "./TagEditor.js";
 import {
   api,
@@ -255,7 +255,7 @@ export function DocumentEditor({
               </div>
               <div className="param-cell-editor">
                 {(!b || b.kind === "text") && (
-                  <LaTeXEditor
+                  <LazyLaTeXEditor
                     value={b?.kind === "text" ? b.value : ""}
                     onChange={(v) => setBinding(p, { kind: "text", value: v })}
                     minHeight="34px"
@@ -264,7 +264,7 @@ export function DocumentEditor({
                   />
                 )}
                 {b?.kind === "fork" && fork && (
-                  <LaTeXEditor
+                  <LazyLaTeXEditor
                     value={fork.content}
                     onChange={(v) => updateForkContent(fork.id, v)}
                     minHeight="140px"
@@ -287,9 +287,9 @@ export function DocumentEditor({
           </div>
         </div>
         {templateView === "template" ? (
-          <LaTeXEditor value={templateDraft} onChange={updateTemplateContent} minHeight="260px" />
+          <LazyLaTeXEditor value={templateDraft} onChange={updateTemplateContent} minHeight="260px" />
         ) : (
-          <LaTeXEditor value={assembled} readOnly minHeight="260px" />
+          <LazyLaTeXEditor value={assembled} readOnly minHeight="260px" />
         )}
       </section>
     </div>

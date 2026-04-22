@@ -1,4 +1,4 @@
-import { readFile, writeFile, readdir, mkdir, stat, rm } from "node:fs/promises";
+import { readFile, writeFile, readdir, mkdir, stat, rm, rename } from "node:fs/promises";
 import path from "node:path";
 import { nanoid } from "nanoid";
 import {
@@ -161,7 +161,10 @@ async function readManifest(id: string): Promise<DocumentManifest | null> {
 
 async function writeManifest(m: DocumentManifest) {
   await mkdir(documentDir(m.id), { recursive: true });
-  await writeFile(documentManifestPath(m.id), JSON.stringify(m, null, 2));
+  const target = documentManifestPath(m.id);
+  const temp = `${target}.${process.pid}.${Date.now()}.tmp`;
+  await writeFile(temp, JSON.stringify(m, null, 2));
+  await rename(temp, target);
 }
 
 async function readForks(docId: string): Promise<SnippetFork[]> {

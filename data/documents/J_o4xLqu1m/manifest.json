@@ -2,7 +2,21 @@
   "id": "J_o4xLqu1m",
   "name": "Untitled",
   "baseTemplateId": "exam",
-  "hasTemplateOverride": false,
-  "paramBindings": {},
-  "notes": ""
+  "hasTemplateOverride": true,
+  "paramBindings": {
+    "title": {
+      "kind": "fork",
+      "forkId": "ueAo2PuK21"
+    },
+    "q1": {
+      "kind": "text",
+      "value": "1231231231231"
+    },
+    "q2": {
+      "kind": "text",
+      "value": "1231231231"
+    }
+  },
+  "notes": "",
+  "tags": []
 }
