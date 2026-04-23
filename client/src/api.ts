@@ -43,11 +43,19 @@ export const api = {
 
   listSnippets: () => cached("snippets", () => fetch("/api/snippets").then(j<Snippet[]>)),
   getSnippet: (id: string) => cached(`snippet:${id}`, () => fetch(`/api/snippets/${id}`).then(j<Snippet>)),
-  putSnippet: (id: string, content: string, description: string, notes: string, paramDescs: Record<string, string>, tags: string[]) =>
+  putSnippet: (
+    id: string,
+    content: string,
+    description: string,
+    notes: string,
+    conversionNotes: string,
+    paramDescs: Record<string, string>,
+    tags: string[],
+  ) =>
     fetch(`/api/snippets/${id}`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ content, description, notes, paramDescs, tags }),
+      body: JSON.stringify({ content, description, notes, conversionNotes, paramDescs, tags }),
     }).then(j<Snippet>).then((v) => { bust("snippets", `snippet:${id}`); return v; }),
   forkSnippet: (id: string, targetId: string) =>
     fetch(`/api/snippets/${id}/fork`, {

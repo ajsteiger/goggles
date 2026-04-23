@@ -1,10 +1,11 @@
 export const PARAM_RE = /\\@@([a-zA-Z_][a-zA-Z0-9_]*)/g;
 export const DESC_RE = /\\@@DESC\{([^}]*)\}\s*\n?/;
 export const AUTHOR_NOTES_RE = /\\@@AUTHORNOTES\{([\s\S]*?)\}\s*\n?/;
+export const CONVERSION_NOTES_RE = /\\@@CONVERSIONNOTES\{([\s\S]*?)\}\s*\n?/;
 export const TAGS_RE = /\\@@TAGS\{([^}]*)\}\s*\n?/;
 export const PARAM_DESC_RE = /\\@@PARAMDESC\{([^}]+)\}\{([^}]*)\}\s*\n?/g;
 
-const META_NAMES = new Set(["DESC", "AUTHORNOTES", "TAGS", "PARAMDESC"]);
+const META_NAMES = new Set(["DESC", "AUTHORNOTES", "CONVERSIONNOTES", "TAGS", "PARAMDESC"]);
 
 export type Template = {
   id: string;
@@ -12,6 +13,7 @@ export type Template = {
   content: string;
   description: string;
   notes: string;
+  conversionNotes?: string;
   tags: string[];
   paramDescs: Record<string, string>;
 };
@@ -22,6 +24,7 @@ export type Snippet = {
   content: string;
   description: string;
   notes: string;
+  conversionNotes?: string;
   tags: string[];
   paramDescs: Record<string, string>;
 };
@@ -77,6 +80,12 @@ export function extractAuthorNotes(src: string): { notes: string; stripped: stri
   return { notes: m[1], stripped: src.replace(AUTHOR_NOTES_RE, "") };
 }
 
+export function extractConversionNotes(src: string): { notes: string; stripped: string } {
+  const m = src.match(CONVERSION_NOTES_RE);
+  if (!m) return { notes: "", stripped: src };
+  return { notes: m[1], stripped: src.replace(CONVERSION_NOTES_RE, "") };
+}
+
 export function extractParamDescs(src: string): { paramDescs: Record<string, string>; stripped: string } {
   const paramDescs: Record<string, string> = {};
   const stripped = src.replace(PARAM_DESC_RE, (_m, name, desc) => {
@@ -112,6 +121,12 @@ export function injectAuthorNotes(src: string, notes: string): string {
   const stripped = src.replace(AUTHOR_NOTES_RE, "");
   if (!notes.trim()) return stripped;
   return `\\@@AUTHORNOTES{${notes}}\n${stripped}`;
+}
+
+export function injectConversionNotes(src: string, notes: string): string {
+  const stripped = src.replace(CONVERSION_NOTES_RE, "");
+  if (!notes.trim()) return stripped;
+  return `\\@@CONVERSIONNOTES{${notes}}\n${stripped}`;
 }
 
 export function injectTags(src: string, tags: string[]): string {

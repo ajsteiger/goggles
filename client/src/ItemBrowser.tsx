@@ -33,6 +33,7 @@ function ItemEditor({
   const [content, setContent] = useState(item.content);
   const [description, setDescription] = useState(item.description);
   const [notes, setNotes] = useState(item.notes);
+  const [conversionNotes, setConversionNotes] = useState(item.conversionNotes ?? "");
   const [paramDescs, setParamDescs] = useState<Record<string, string>>(item.paramDescs ?? {});
   const [tags, setTags] = useState(item.tags);
   const [forkName, setForkName] = useState("");
@@ -42,11 +43,12 @@ function ItemEditor({
     setContent(item.content);
     setDescription(item.description);
     setNotes(item.notes);
+    setConversionNotes(item.conversionNotes ?? "");
     setParamDescs(item.paramDescs ?? {});
     setTags(item.tags);
     setForkName(`${item.id}-copy`);
     setDirty(false);
-  }, [item.id, item.content, item.description, item.notes, item.paramDescs, item.tags]);
+  }, [kind, item.id, item.content, item.description, item.notes, item.conversionNotes, item.paramDescs, item.tags]);
 
   useEffect(() => {
     if (!autoFocusEditor) return;
@@ -64,7 +66,7 @@ function ItemEditor({
     if (kind === "templates") {
       await api.putTemplate(item.id, content, description, notes, mergedDescs, tags);
     } else {
-      await api.putSnippet(item.id, content, description, notes, mergedDescs, tags);
+      await api.putSnippet(item.id, content, description, notes, conversionNotes, mergedDescs, tags);
     }
     setDirty(false);
     onSave();
@@ -129,6 +131,17 @@ function ItemEditor({
             minHeight="80px"
           />
         </label>
+        {kind === "snippets" && (
+          <label className="field">
+            <span>conversion notes</span>
+            <textarea
+              value={conversionNotes}
+              onChange={(e) => { setConversionNotes(e.target.value); mark(); }}
+              placeholder="conversion debug info…"
+              rows={5}
+            />
+          </label>
+        )}
       </div>
 
       <label className="field">
@@ -182,7 +195,7 @@ function ItemBrowser({ kind }: { kind: ItemKind }) {
     if (kind === "templates") {
       await api.putTemplate(id, "", "", "", {}, []);
     } else {
-      await api.putSnippet(id, "", "", "", {}, []);
+      await api.putSnippet(id, "", "", "", "", {}, []);
     }
     setNewName("");
     await refresh(id);

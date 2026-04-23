@@ -17,6 +17,8 @@ import {
   injectDesc,
   extractAuthorNotes,
   injectAuthorNotes,
+  extractConversionNotes,
+  injectConversionNotes,
   extractParamDescs,
   injectParamDescs,
   extractTags,
@@ -62,9 +64,10 @@ async function readTexItem(dir: string, id: string) {
   const raw = await readFile(path.join(dir, `${id}.tex`), "utf8");
   const { description, stripped: s1 } = extractDesc(raw);
   const { notes, stripped: s2 } = extractAuthorNotes(s1);
-  const { paramDescs, stripped: s3 } = extractParamDescs(s2);
-  const { tags, stripped } = extractTags(s3);
-  return { id, name: id, content: stripped, description, notes, paramDescs, tags };
+  const { notes: conversionNotes, stripped: s3 } = extractConversionNotes(s2);
+  const { paramDescs, stripped: s4 } = extractParamDescs(s3);
+  const { tags, stripped } = extractTags(s4);
+  return { id, name: id, content: stripped, description, notes, conversionNotes, paramDescs, tags };
 }
 
 async function writeTexItem(
@@ -73,12 +76,14 @@ async function writeTexItem(
   content: string,
   description: string,
   notes: string,
+  conversionNotes: string,
   paramDescs: Record<string, string>,
   tags: string[],
 ) {
   await mkdir(dir, { recursive: true });
   let full = injectDesc(content, description);
   full = injectAuthorNotes(full, notes);
+  full = injectConversionNotes(full, conversionNotes);
   full = injectParamDescs(full, paramDescs);
   full = injectTags(full, tags);
   await writeFile(path.join(dir, `${id}.tex`), full, "utf8");
@@ -86,7 +91,7 @@ async function writeTexItem(
 
 async function forkTexItem(dir: string, sourceId: string, targetId: string) {
   const item = await readTexItem(dir, sourceId);
-  await writeTexItem(dir, targetId, item.content, item.description, item.notes, item.paramDescs, item.tags);
+  await writeTexItem(dir, targetId, item.content, item.description, item.notes, item.conversionNotes ?? "", item.paramDescs, item.tags);
   return readTexItem(dir, targetId);
 }
 
@@ -108,14 +113,14 @@ export const templates = {
     return result;
   },
   async put(id: string, content: string, description: string, notes: string, paramDescs: Record<string, string>, tags: string[]) {
-    await writeTexItem(TEMPLATES_DIR, id, content, description, notes, paramDescs, tags);
+    await writeTexItem(TEMPLATES_DIR, id, content, description, notes, "", paramDescs, tags);
     scBust("templates:list", `template:${id}`);
     return readTexItem(TEMPLATES_DIR, id);
   },
   async fork(sourceId: string, targetId: string) {
     const item = await templates.get(sourceId);
     if (!item) throw new Error("template not found");
-    await writeTexItem(TEMPLATES_DIR, targetId, item.content, item.description, item.notes, item.paramDescs, item.tags);
+    await writeTexItem(TEMPLATES_DIR, targetId, item.content, item.description, item.notes, "", item.paramDescs, item.tags);
     scBust("templates:list", `template:${sourceId}`, `template:${targetId}`);
     return readTexItem(TEMPLATES_DIR, targetId);
   },
@@ -138,15 +143,23 @@ export const snippets = {
     scSet(`snippet:${id}`, result);
     return result;
   },
-  async put(id: string, content: string, description: string, notes: string, paramDescs: Record<string, string>, tags: string[]) {
-    await writeTexItem(SNIPPETS_DIR, id, content, description, notes, paramDescs, tags);
+  async put(
+    id: string,
+    content: string,
+    description: string,
+    notes: string,
+    conversionNotes: string,
+    paramDescs: Record<string, string>,
+    tags: string[],
+  ) {
+    await writeTexItem(SNIPPETS_DIR, id, content, description, notes, conversionNotes, paramDescs, tags);
     scBust("snippets:list", `snippet:${id}`);
     return readTexItem(SNIPPETS_DIR, id);
   },
   async fork(sourceId: string, targetId: string) {
     const item = await snippets.get(sourceId);
     if (!item) throw new Error("snippet not found");
-    await writeTexItem(SNIPPETS_DIR, targetId, item.content, item.description, item.notes, item.paramDescs, item.tags);
+    await writeTexItem(SNIPPETS_DIR, targetId, item.content, item.description, item.notes, item.conversionNotes ?? "", item.paramDescs, item.tags);
     scBust("snippets:list", `snippet:${sourceId}`, `snippet:${targetId}`);
     return readTexItem(SNIPPETS_DIR, targetId);
   },

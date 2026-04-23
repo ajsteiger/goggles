@@ -14,8 +14,15 @@ snippetsRouter.get("/:id", async (req, res) => {
 });
 
 snippetsRouter.put("/:id", async (req, res) => {
-  const { content = "", description = "", notes = "", paramDescs = {}, tags = [] } = req.body ?? {};
-  const s = await snippets.put(req.params.id, content, description, notes, paramDescs, tags);
+  const {
+    content = "",
+    description = "",
+    notes = "",
+    conversionNotes = "",
+    paramDescs = {},
+    tags = [],
+  } = req.body ?? {};
+  const s = await snippets.put(req.params.id, content, description, notes, conversionNotes, paramDescs, tags);
   res.json(s);
 });
 
