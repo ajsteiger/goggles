@@ -19,11 +19,34 @@ function buildServer() {
   });
 }
 
+function createMockResponse() {
+  return {
+    statusCode: 200,
+    headers: new Map(),
+    body: null,
+    status(code) {
+      this.statusCode = code;
+      return this;
+    },
+    json(payload) {
+      this.body = payload;
+      return this;
+    },
+    setHeader(name, value) {
+      this.headers.set(name.toLowerCase(), value);
+    },
+    send(payload) {
+      this.body = payload;
+      return this;
+    },
+  };
+}
+
 async function main() {
   buildServer();
 
   const { snippets, documents } = await import(pathToFileURL(path.join(gogglesRoot, "server", "dist", "storage.js")).href);
-  const { buildDocumentPdf } = await import(pathToFileURL(path.join(gogglesRoot, "server", "dist", "routes", "build.js")).href);
+  const { buildDocumentPdf, handleBuildRequest } = await import(pathToFileURL(path.join(gogglesRoot, "server", "dist", "routes", "build.js")).href);
   const { documentDir } = await import(pathToFileURL(path.join(gogglesRoot, "server", "dist", "paths.js")).href);
 
   const connectivity = await snippets.get("intake-connectivity");
@@ -109,6 +132,26 @@ async function main() {
     assert.equal(nonFileResult.ok, false, "expected non-regular asset source build to fail");
     assert.equal(nonFileResult.error, "missing assets", `expected non-regular asset source to be treated as unresolved, got ${JSON.stringify(nonFileResult)}`);
     assert.deepEqual(nonFileResult.missingAssets, ["assets/verify-build-assets/non-file.pdf"]);
+
+    const routeSuccessDocId = await createExamDoc("verify-build-route success", connectivity.content);
+    const routeSuccessResponse = createMockResponse();
+    await handleBuildRequest({ params: { id: routeSuccessDocId } }, routeSuccessResponse);
+    assert.equal(routeSuccessResponse.statusCode, 200, "expected route-level build success");
+    assert.equal(routeSuccessResponse.headers.get("content-type"), "application/pdf", "expected PDF route content type");
+    assert.ok(Buffer.isBuffer(routeSuccessResponse.body), "expected route-level PDF buffer");
+    assert.ok(routeSuccessResponse.body.length > 0, "expected non-empty route-level PDF response");
+
+    const routeMissingDocId = await createExamDoc(
+      "verify-build-route missing",
+      "\\begin{center}\\includegraphics[width=0.4\\textwidth]{assets/__missing__/route-fixture.pdf}\\end{center}",
+    );
+    const routeMissingResponse = createMockResponse();
+    await handleBuildRequest({ params: { id: routeMissingDocId } }, routeMissingResponse);
+    assert.equal(routeMissingResponse.statusCode, 422, "expected route-level missing-assets failure");
+    assert.deepEqual(routeMissingResponse.body, {
+        error: "missing assets",
+        missingAssets: ["assets/__missing__/route-fixture.pdf"],
+      });
   } finally {
     await Promise.all(
       createdDocIds.map((docId) => rm(documentDir(docId), { recursive: true, force: true })),

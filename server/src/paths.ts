@@ -42,10 +42,12 @@ export const SNIPPET_READ_DIRS = Array.from(new Set([
   LOCAL_SNIPPETS_DIR,
   CORPUS_SNIPPETS_DIR,
 ]));
-export const OVERRIDE_SNIPPET_ASSET_BASE_DIRS = (process.env.GOGGLES_SNIPPET_ASSET_ROOT ?? "")
-  .split(path.delimiter)
-  .map((value) => resolvePathOverride(value))
-  .filter((value): value is string => Boolean(value));
+export const OVERRIDE_SNIPPET_ASSET_BASE_DIRS = Array.from(new Set(
+  (process.env.GOGGLES_SNIPPET_ASSET_ROOT ?? "")
+    .split(path.delimiter)
+    .map((value) => resolvePathOverride(value))
+    .filter((value): value is string => Boolean(value)),
+));
 export const SNIPPET_ASSET_BASE_DIRS = Array.from(new Set([
   DOCUMENTS_DIR,
   LOCAL_SNIPPETS_DIR,

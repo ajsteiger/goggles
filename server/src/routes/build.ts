@@ -43,6 +43,19 @@ export type BuildDocumentResult =
   | BuildMissingAssetsFailure
   | BuildPdflatexFailure;
 
+type BuildRequest = {
+  params: {
+    id: string;
+  };
+};
+
+type BuildResponse = {
+  status: (code: number) => BuildResponse;
+  json: (body: unknown) => unknown;
+  setHeader: (name: string, value: string) => void;
+  send: (body: Buffer) => unknown;
+};
+
 async function pathExists(filePath: string): Promise<boolean> {
   try {
     await stat(filePath);
@@ -149,7 +162,7 @@ export async function buildDocumentPdf(docId: string): Promise<BuildDocumentResu
   }
 }
 
-buildRouter.post("/:id/build", async (req, res) => {
+export async function handleBuildRequest(req: BuildRequest, res: BuildResponse) {
   const doc = await documents.get(req.params.id);
   if (!doc) return res.status(404).json({ error: "not found" });
 
@@ -167,4 +180,6 @@ buildRouter.post("/:id/build", async (req, res) => {
   }
 
   return res.status(result.status).json({ error: result.error, log: result.log });
-});
+}
+
+buildRouter.post("/:id/build", handleBuildRequest);

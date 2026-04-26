@@ -35,6 +35,7 @@ From the parent repo root:
 uv run python -m unittest tests.test_curate -q
 node goggles/scripts/verify-snippet-overlay.mjs
 node goggles/scripts/verify-build-assets.mjs
+node goggles/scripts/verify-runtime-summary.mjs
 ```
 
 To verify the Goggles build itself:

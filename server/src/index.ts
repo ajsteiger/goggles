@@ -7,22 +7,34 @@ import { snippetsRouter } from "./routes/snippets.js";
 import { documentsRouter } from "./routes/documents.js";
 import { buildRouter } from "./routes/build.js";
 import { swiftlatexRouter } from "./routes/swiftlatex.js";
+import { fileURLToPath } from "node:url";
 
 const PORT = Number(process.env.PORT ?? 5174);
+const ENTRYPOINT_PATH = fileURLToPath(import.meta.url);
 
 function summarizeAssetOverrides(): string {
   if (OVERRIDE_SNIPPET_ASSET_BASE_DIRS.length === 0) return "none";
   return OVERRIDE_SNIPPET_ASSET_BASE_DIRS.join(", ");
 }
 
-async function ensureDataDirs() {
+export function getRuntimeSummary(): string[] {
+  return [
+    `goggles data dir: ${DATA_DIR}`,
+    "goggles runtime:",
+    `  snippets source: ${USING_EXTERNAL_SNIPPETS ? "external corpus" : "bundled corpus"}`,
+    `  corpus dir: ${CORPUS_SNIPPETS_DIR}`,
+    `  writable overlay dir: ${LOCAL_SNIPPETS_DIR}`,
+    `  asset overrides: ${summarizeAssetOverrides()}`,
+  ];
+}
+
+export async function ensureDataDirs() {
   await mkdir(TEMPLATES_DIR, { recursive: true });
   await mkdir(LOCAL_SNIPPETS_DIR, { recursive: true });
   await mkdir(DOCUMENTS_DIR, { recursive: true });
 }
 
-async function main() {
-  await ensureDataDirs();
+export function createApp() {
   const app = express();
   app.use(cors());
   app.use(express.json({ limit: "4mb" }));
@@ -33,18 +45,21 @@ async function main() {
   app.use("/api/documents", buildRouter);
   app.use("/api/swiftlatex", swiftlatexRouter);
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
+  return app;
+}
+
+async function main() {
+  await ensureDataDirs();
+  const app = createApp();
   app.listen(PORT, () => {
     console.log(`goggles server on :${PORT}`);
-    console.log(`goggles data dir: ${DATA_DIR}`);
-    console.log("goggles runtime:");
-    console.log(`  snippets source: ${USING_EXTERNAL_SNIPPETS ? "external corpus" : "bundled corpus"}`);
-    console.log(`  corpus dir: ${CORPUS_SNIPPETS_DIR}`);
-    console.log(`  writable overlay dir: ${LOCAL_SNIPPETS_DIR}`);
-    console.log(`  asset overrides: ${summarizeAssetOverrides()}`);
+    getRuntimeSummary().forEach((line) => console.log(line));
   });
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+if (process.env.GOGGLES_IMPORT_ONLY !== "1" && process.argv[1] === ENTRYPOINT_PATH) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
