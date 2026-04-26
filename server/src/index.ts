@@ -1,8 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { mkdir } from "node:fs/promises";
-import path from "node:path";
-import { DATA_DIR } from "./paths.js";
+import { CORPUS_SNIPPETS_DIR, DATA_DIR, DOCUMENTS_DIR, LOCAL_SNIPPETS_DIR, OVERRIDE_SNIPPET_ASSET_BASE_DIRS, TEMPLATES_DIR, USING_EXTERNAL_SNIPPETS } from "./paths.js";
 import { templatesRouter } from "./routes/templates.js";
 import { snippetsRouter } from "./routes/snippets.js";
 import { documentsRouter } from "./routes/documents.js";
@@ -11,10 +10,15 @@ import { swiftlatexRouter } from "./routes/swiftlatex.js";
 
 const PORT = Number(process.env.PORT ?? 5174);
 
+function summarizeAssetOverrides(): string {
+  if (OVERRIDE_SNIPPET_ASSET_BASE_DIRS.length === 0) return "none";
+  return OVERRIDE_SNIPPET_ASSET_BASE_DIRS.join(", ");
+}
+
 async function ensureDataDirs() {
-  await mkdir(path.join(DATA_DIR, "templates"), { recursive: true });
-  await mkdir(path.join(DATA_DIR, "snippets"), { recursive: true });
-  await mkdir(path.join(DATA_DIR, "documents"), { recursive: true });
+  await mkdir(TEMPLATES_DIR, { recursive: true });
+  await mkdir(LOCAL_SNIPPETS_DIR, { recursive: true });
+  await mkdir(DOCUMENTS_DIR, { recursive: true });
 }
 
 async function main() {
@@ -29,7 +33,15 @@ async function main() {
   app.use("/api/documents", buildRouter);
   app.use("/api/swiftlatex", swiftlatexRouter);
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
-  app.listen(PORT, () => console.log(`goggles server on :${PORT}`));
+  app.listen(PORT, () => {
+    console.log(`goggles server on :${PORT}`);
+    console.log(`goggles data dir: ${DATA_DIR}`);
+    console.log("goggles runtime:");
+    console.log(`  snippets source: ${USING_EXTERNAL_SNIPPETS ? "external corpus" : "bundled corpus"}`);
+    console.log(`  corpus dir: ${CORPUS_SNIPPETS_DIR}`);
+    console.log(`  writable overlay dir: ${LOCAL_SNIPPETS_DIR}`);
+    console.log(`  asset overrides: ${summarizeAssetOverrides()}`);
+  });
 }
 
 main().catch((e) => {

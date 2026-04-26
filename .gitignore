@@ -5,3 +5,6 @@ dist
 .env
 .env.*
 !.env.example
+data/snippets/
+data/snippets-local/*
+!data/snippets-local/.gitkeep

@@ -3,7 +3,8 @@ import path from "node:path";
 import { nanoid } from "nanoid";
 import {
   TEMPLATES_DIR,
-  SNIPPETS_DIR,
+  LOCAL_SNIPPETS_DIR,
+  SNIPPET_READ_DIRS,
   DOCUMENTS_DIR,
   documentDir,
   documentManifestPath,
@@ -58,6 +59,14 @@ async function listTex(dir: string): Promise<string[]> {
   if (!(await exists(dir))) return [];
   const entries = await readdir(dir);
   return entries.filter((e) => e.endsWith(".tex")).map((e) => e.slice(0, -4));
+}
+
+async function resolveSnippetPath(id: string): Promise<string | null> {
+  for (const dir of SNIPPET_READ_DIRS) {
+    const filePath = path.join(dir, `${id}.tex`);
+    if (await exists(filePath)) return filePath;
+  }
+  return null;
 }
 
 async function readTexItem(dir: string, id: string) {
@@ -130,16 +139,22 @@ export const snippets = {
   async list(): Promise<Snippet[]> {
     const cached = scGet<Snippet[]>("snippets:list");
     if (cached) return cached;
-    const ids = await listTex(SNIPPETS_DIR);
-    const result = await Promise.all(ids.map((id) => readTexItem(SNIPPETS_DIR, id)));
-    scSet("snippets:list", result);
-    return result;
+    const idsByName = new Set<string>();
+    for (const dir of SNIPPET_READ_DIRS) {
+      const ids = await listTex(dir);
+      ids.forEach((id) => idsByName.add(id));
+    }
+    const result = await Promise.all(Array.from(idsByName).map((id) => snippets.get(id)));
+    const filtered = result.filter((item): item is Snippet => item !== null);
+    scSet("snippets:list", filtered);
+    return filtered;
   },
   async get(id: string): Promise<Snippet | null> {
     const cached = scGet<Snippet>(`snippet:${id}`);
     if (cached) return cached;
-    if (!(await exists(path.join(SNIPPETS_DIR, `${id}.tex`)))) return null;
-    const result = await readTexItem(SNIPPETS_DIR, id);
+    const filePath = await resolveSnippetPath(id);
+    if (!filePath) return null;
+    const result = await readTexItem(path.dirname(filePath), id);
     scSet(`snippet:${id}`, result);
     return result;
   },
@@ -152,16 +167,16 @@ export const snippets = {
     paramDescs: Record<string, string>,
     tags: string[],
   ) {
-    await writeTexItem(SNIPPETS_DIR, id, content, description, notes, conversionNotes, paramDescs, tags);
+    await writeTexItem(LOCAL_SNIPPETS_DIR, id, content, description, notes, conversionNotes, paramDescs, tags);
     scBust("snippets:list", `snippet:${id}`);
-    return readTexItem(SNIPPETS_DIR, id);
+    return readTexItem(LOCAL_SNIPPETS_DIR, id);
   },
   async fork(sourceId: string, targetId: string) {
     const item = await snippets.get(sourceId);
     if (!item) throw new Error("snippet not found");
-    await writeTexItem(SNIPPETS_DIR, targetId, item.content, item.description, item.notes, item.conversionNotes ?? "", item.paramDescs, item.tags);
+    await writeTexItem(LOCAL_SNIPPETS_DIR, targetId, item.content, item.description, item.notes, item.conversionNotes ?? "", item.paramDescs, item.tags);
     scBust("snippets:list", `snippet:${sourceId}`, `snippet:${targetId}`);
-    return readTexItem(SNIPPETS_DIR, targetId);
+    return readTexItem(LOCAL_SNIPPETS_DIR, targetId);
   },
 };
 
